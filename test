@@ -1,0 +1,45 @@
+import cv2
+import numpy as np
+
+# Define green color range for each camera
+lower_range_camera1 = np.array([35, 98, 44])
+upper_range_camera1 = np.array([170, 255, 255])
+
+lower_range_camera2 = np.array([35, 98, 44])  # Adjust based on your setup
+upper_range_camera2 = np.array([170, 255, 255])  # Adjust based on your setup
+
+# Open cameras
+cap1 = cv2.VideoCapture(0)  # Adjust camera indices based on your setup
+cap2 = cv2.VideoCapture(1)
+
+while True:
+    # Capture frames from both cameras
+    ret1, frame1 = cap1.read()
+    ret2, frame2 = cap2.read()
+
+    # Resize frames for consistency
+    frame1 = cv2.resize(frame1, (640, 480))
+    frame2 = cv2.resize(frame2, (640, 480))
+
+    # Convert frames to HSV color space
+    hsv1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)
+    hsv2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2HSV)
+
+    # Threshold the HSV images to get only green colors
+    mask1 = cv2.inRange(hsv1, lower_range_camera1, upper_range_camera1)
+    mask2 = cv2.inRange(hsv2, lower_range_camera2, upper_range_camera2)
+
+    # Combine the masks
+    green_mask = cv2.bitwise_or(mask1, mask2)
+
+    # Display frames with green detection
+    cv2.imshow("Green Detection", green_mask)
+
+    # Break the loop if 'Esc' key is pressed
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+# Release cameras and close windows
+cap1.release()
+cap2.release()
+cv2.destroyAllWindows()
